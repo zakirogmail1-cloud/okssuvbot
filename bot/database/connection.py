@@ -16,7 +16,10 @@ async def init_engine():
             "DATABASE_URL is not set. "
             "Check your .env file or Railway environment variables."
         )
-    engine = create_async_engine(DATABASE_URL, echo=False)
+    connect_args = {}
+    if "supabase" in DATABASE_URL:
+        connect_args["ssl"] = "require"
+    engine = create_async_engine(DATABASE_URL, echo=False, connect_args=connect_args)
     async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     logger.info("Database engine initialized")
 
@@ -93,7 +96,18 @@ async def init_db():
     if not engine:
         await init_engine()
     from bot.database.models import Base
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    import asyncio
+    for attempt in range(5):
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            break
+        except OSError as e:
+            if attempt < 4:
+                wait = (attempt + 1) * 5
+                logger.warning(f"Database connection failed (attempt {attempt+1}/5): {e}. Retrying in {wait}s...")
+                await asyncio.sleep(wait)
+            else:
+                raise
     await migrate_schema()
     logger.info("Database migration completed")
