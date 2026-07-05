@@ -5,8 +5,20 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-engine = None
-async_session = None
+if DATABASE_URL:
+    db_url = DATABASE_URL
+    if db_url.startswith("postgresql://") and "+asyncpg" not in db_url:
+        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    connect_args = {}
+    if "supabase" in db_url:
+        connect_args["ssl"] = "require"
+    engine = create_async_engine(db_url, echo=False, connect_args=connect_args)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    logger.info("Database engine initialized at module level")
+else:
+    engine = None
+    async_session = None
+    logger.warning("DATABASE_URL not set, engine will be initialized later")
 
 
 async def init_engine():
@@ -24,7 +36,7 @@ async def init_engine():
         connect_args["ssl"] = "require"
     engine = create_async_engine(db_url, echo=False, connect_args=connect_args)
     async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-    logger.info("Database engine initialized")
+    logger.info("Database engine initialized (lazy)")
 
 
 async def get_session() -> AsyncSession:
