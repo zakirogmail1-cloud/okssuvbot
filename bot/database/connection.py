@@ -16,10 +16,13 @@ async def init_engine():
             "DATABASE_URL is not set. "
             "Check your .env file or Railway environment variables."
         )
+    db_url = DATABASE_URL
+    if db_url.startswith("postgresql://") and "+asyncpg" not in db_url:
+        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
     connect_args = {}
-    if "supabase" in DATABASE_URL:
+    if "supabase" in db_url:
         connect_args["ssl"] = "require"
-    engine = create_async_engine(DATABASE_URL, echo=False, connect_args=connect_args)
+    engine = create_async_engine(db_url, echo=False, connect_args=connect_args)
     async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     logger.info("Database engine initialized")
 
