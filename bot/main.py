@@ -48,8 +48,9 @@ async def main():
     logger.info("Scheduler started")
 
     try:
-        logger.info("Start polling for bot")
-        await dp.start_polling(bot)
+        await bot.delete_webhook(drop_pending_updates=True)
+        logger.info("Webhook cleared, starting polling...")
+        await dp.start_polling(bot, drop_pending_updates=True)
     finally:
         scheduler.shutdown()
         await bot.session.close()
