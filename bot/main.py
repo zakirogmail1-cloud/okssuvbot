@@ -6,7 +6,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import ErrorEvent
 from bot.config import BOT_TOKEN, ADMIN_TELEGRAM_IDS
-from bot.database.connection import init_db, async_session
+from bot.database import connection as db_conn
 from bot.database import crud
 from bot.handlers import start, orders, admin
 from bot.middlewares.throttling import ThrottlingMiddleware
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 async def seed_admins():
-    async with async_session() as session:
+    async with db_conn.async_session() as session:
         for tid in ADMIN_TELEGRAM_IDS:
             existing = await crud.get_admin_by_telegram_id(session, tid)
             if not existing:
@@ -35,7 +35,7 @@ async def main():
 
     logger.info("Connecting to database...")
 
-    await init_db()
+    await db_conn.init_db()
     logger.info("Database initialized")
 
     await seed_admins()
