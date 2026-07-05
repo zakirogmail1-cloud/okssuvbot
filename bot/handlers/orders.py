@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardB
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import select
-from bot.database.connection import async_session
+from bot.database.connection import get_db
 from bot.database import crud
 from bot.database.models import OrderStatus, User
 from bot.keyboards.inline import get_order_confirm_keyboard
@@ -88,14 +88,14 @@ async def del_temp(state: FSMContext, bot: Bot):
 @router.message(F.text.in_(["🛒 Buyurtma berish", "🛒 Заказать", "🛒 Place Order"]))
 async def start_order(message: Message, state: FSMContext):
     try:
-        async with async_session() as s:
+        async with get_db() as s:
             user = await crud.get_user_by_telegram_id(s, message.from_user.id)
         if not user:
             await message.answer(get_text("please_register", "uz"))
             return
 
         lang = user.language
-        async with async_session() as s:
+        async with get_db() as s:
             active = await crud.get_active_orders_by_user(s, user.id)
             if active:
                 await message.answer(
@@ -296,7 +296,7 @@ async def confirm_order(callback: CallbackQuery, state: FSMContext):
         d = await state.get_data()
         lang = d.get("user_lang", "uz")
         
-        async with async_session() as s:
+        async with get_db() as s:
             user = await crud.get_user_by_telegram_id(s, callback.from_user.id)
             if not user:
                 await callback.answer("Foydalanuvchi topilmadi", show_alert=True)
@@ -370,7 +370,7 @@ async def cancel_anywhere(callback: CallbackQuery, state: FSMContext):
 async def deliver_order(callback: CallbackQuery):
     try:
         oid = int(callback.data.split("_")[1])
-        async with async_session() as s:
+        async with get_db() as s:
             order = await crud.get_order_by_id(s, oid)
             if not order:
                 await callback.answer("Buyurtma topilmadi", show_alert=True)
@@ -422,14 +422,14 @@ async def back_to_products(callback: CallbackQuery, state: FSMContext):
 @router.message(F.text.in_(["📋 Mening buyurtmalarim", "📋 Мои заказы", "📋 My Orders"]))
 async def my_orders(message: Message):
     try:
-        async with async_session() as s:
+        async with get_db() as s:
             user = await crud.get_user_by_telegram_id(s, message.from_user.id)
         if not user:
             await message.answer(get_text("please_register", "uz"))
             return
 
         lang = user.language
-        async with async_session() as s:
+        async with get_db() as s:
             orders = await crud.get_orders_by_user(s, user.id)
 
         if not orders:

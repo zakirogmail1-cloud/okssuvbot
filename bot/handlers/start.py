@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
-from bot.database.connection import async_session
+from bot.database.connection import get_db
 from bot.database import crud
 from bot.keyboards.reply import (
     get_contact_keyboard, get_main_keyboard, get_info_edit_keyboard, get_language_keyboard
@@ -30,7 +30,7 @@ class EditInfo(StatesGroup):
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
 
     if user:
@@ -123,7 +123,7 @@ async def process_household_size(message: Message, state: FSMContext):
     data = await state.get_data()
     lang = data.get("language", "uz")
 
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.create_user(
             session,
             telegram_id=message.from_user.id,
@@ -150,7 +150,7 @@ async def process_household_size_invalid(message: Message, state: FSMContext):
 
 @router.message(F.text.in_(["🌐 Tilni o'zgartirish", "🌐 Изменить язык", "🌐 Change Language"]))
 async def change_language(message: Message):
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
     
     if not user:
@@ -165,7 +165,7 @@ async def change_language(message: Message):
 
 @router.message(F.text.in_(["ℹ️ Biz haqimizda", "ℹ️ О нас", "ℹ️ About Us"]))
 async def about_us(message: Message):
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
     
     if not user:
@@ -183,7 +183,7 @@ async def about_us(message: Message):
 async def process_language_change(callback: CallbackQuery):
     lang = callback.data.split("_")[1]
     
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, callback.from_user.id)
         if user:
             await crud.update_user_language(session, user.id, lang)
@@ -202,7 +202,7 @@ async def process_language_change(callback: CallbackQuery):
 
 @router.message(F.text.in_(["👤 Mening ma'lumotlarim", "👤 Моя информация", "👤 My Information"]))
 async def my_info(message: Message):
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
 
     if not user:
@@ -219,7 +219,7 @@ async def my_info(message: Message):
 
 @router.message(F.text.in_(["✏️ Ismni o'zgartirish", "✏️ Изменить имя", "✏️ Edit Name"]))
 async def edit_name_start(message: Message, state: FSMContext):
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
 
     if not user:
@@ -236,7 +236,7 @@ async def edit_name_start(message: Message, state: FSMContext):
 
 @router.message(EditInfo.waiting_for_new_name)
 async def edit_name_process(message: Message, state: FSMContext):
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
         if user:
             lang = user.language
@@ -247,7 +247,7 @@ async def edit_name_process(message: Message, state: FSMContext):
         await message.answer(get_text("invalid_name_short", lang))
         return
 
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
         if user:
             await crud.update_user_name(session, user.id, message.text.strip())
@@ -261,7 +261,7 @@ async def edit_name_process(message: Message, state: FSMContext):
 
 @router.message(F.text.in_(["✏️ Telefon raqamni o'zgartirish", "✏️ Изменить телефон", "✏️ Edit Phone"]))
 async def edit_phone_start(message: Message, state: FSMContext):
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
 
     if not user:
@@ -278,7 +278,7 @@ async def edit_phone_start(message: Message, state: FSMContext):
 
 @router.message(EditInfo.waiting_for_new_phone)
 async def edit_phone_process(message: Message, state: FSMContext):
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
         if user:
             lang = user.language
@@ -292,7 +292,7 @@ async def edit_phone_process(message: Message, state: FSMContext):
         await message.answer(get_text("invalid_phone_format", lang))
         return
 
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
         if user:
             await crud.update_user_phone(session, user.id, phone)
@@ -307,7 +307,7 @@ async def edit_phone_process(message: Message, state: FSMContext):
 @router.message(F.text.in_(["📞 Qo'llab-quvvatlash", "📞 Поддержка", "📞 Support"]))
 async def support(message: Message):
     from bot.config import ADMIN_TELEGRAM_IDS
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
 
     if not user:
@@ -343,7 +343,7 @@ async def support(message: Message):
 @router.message(F.text.in_(["◀️ Orqaga", "◀️ Назад", "◀️ Back"]))
 async def go_back(message: Message, state: FSMContext):
     await state.clear()
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
         lang = user.language if user else "uz"
     
@@ -356,7 +356,7 @@ async def go_back(message: Message, state: FSMContext):
 @router.message(Command("cancel"))
 async def cmd_cancel(message: Message, state: FSMContext):
     await state.clear()
-    async with async_session() as session:
+    async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
         lang = user.language if user else "uz"
     

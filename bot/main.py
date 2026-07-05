@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 async def seed_admins():
-    async with db_conn.async_session() as session:
+    async with db_conn.get_db() as session:
         for tid in ADMIN_TELEGRAM_IDS:
             existing = await crud.get_admin_by_telegram_id(session, tid)
             if not existing:

@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy import text
 from bot.config import DATABASE_URL
@@ -5,24 +6,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-if DATABASE_URL:
-    db_url = DATABASE_URL
-    if db_url.startswith("postgresql://") and "+asyncpg" not in db_url:
-        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-    connect_args = {}
-    if "supabase" in db_url:
-        connect_args["ssl"] = "require"
-    engine = create_async_engine(db_url, echo=False, connect_args=connect_args)
-    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-    logger.info("Database engine initialized at module level")
-else:
-    engine = None
-    async_session = None
-    logger.warning("DATABASE_URL not set, engine will be initialized later")
+engine = None
+_session_maker = None
 
 
-async def init_engine():
-    global engine, async_session
+def _make_url():
     if not DATABASE_URL:
         raise ValueError(
             "DATABASE_URL is not set. "
@@ -34,15 +22,23 @@ async def init_engine():
     connect_args = {}
     if "supabase" in db_url:
         connect_args["ssl"] = "require"
+    return db_url, connect_args
+
+
+async def init_engine():
+    global engine, _session_maker
+    db_url, connect_args = _make_url()
     engine = create_async_engine(db_url, echo=False, connect_args=connect_args)
-    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-    logger.info("Database engine initialized (lazy)")
+    _session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    logger.info("Database engine initialized")
 
 
-async def get_session() -> AsyncSession:
-    if not async_session:
+@asynccontextmanager
+async def get_db():
+    global _session_maker
+    if _session_maker is None:
         await init_engine()
-    async with async_session() as session:
+    async with _session_maker() as session:
         yield session
 
 

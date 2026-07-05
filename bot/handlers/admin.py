@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from datetime import datetime, timedelta, date
-from bot.database.connection import async_session
+from bot.database.connection import get_db
 from bot.database import crud
 from bot.keyboards.reply import get_admin_keyboard, get_main_keyboard
 from bot.config import ADMIN_TELEGRAM_IDS, get_current_date
@@ -44,7 +44,7 @@ THIN_BORDER = Border(
 async def is_admin(telegram_id: int) -> bool:
     if telegram_id in ADMIN_TELEGRAM_IDS:
         return True
-    async with async_session() as session:
+    async with get_db() as session:
         admin = await crud.get_admin_by_telegram_id(session, telegram_id)
         return admin is not None
 
@@ -221,7 +221,7 @@ async def daily_report(message: Message):
     if not await is_admin(message.from_user.id):
         return
     today = get_current_date()
-    async with async_session() as session:
+    async with get_db() as session:
         rows, total = await get_report_data(session, today, today)
     await send_report(message, rows, total,
                       today.strftime('%d.%m.%Y'), today.strftime('%d.%m.%Y'),
@@ -235,7 +235,7 @@ async def weekly_report(message: Message):
     today = get_current_date()
     start_of_week = today - timedelta(days=today.weekday())
     end_of_week = start_of_week + timedelta(days=6)
-    async with async_session() as session:
+    async with get_db() as session:
         rows, total = await get_report_data(session, start_of_week, end_of_week)
     await send_report(message, rows, total,
                       start_of_week.strftime('%d.%m.%Y'), end_of_week.strftime('%d.%m.%Y'),
@@ -252,7 +252,7 @@ async def monthly_report(message: Message):
         end_of_month = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
     else:
         end_of_month = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
-    async with async_session() as session:
+    async with get_db() as session:
         rows, total = await get_report_data(session, start_of_month, end_of_month)
     month_names = {
         1: "Yanvar", 2: "Fevral", 3: "Mart", 4: "Aprel", 5: "May", 6: "Iyun",
@@ -268,7 +268,7 @@ async def all_clients_excel(message: Message):
     if not await is_admin(message.from_user.id):
         return
 
-    async with async_session() as session:
+    async with get_db() as session:
         users = await crud.get_all_users(session)
 
     if not users:
@@ -346,7 +346,7 @@ async def broadcast_send(message: Message, state: FSMContext):
         return
     
     # Foydalanuvchilarni olish
-    async with async_session() as session:
+    async with get_db() as session:
         users = await crud.get_all_users(session)
     
     if not users:

@@ -12,12 +12,12 @@ templates = Jinja2Templates(directory=templates_dir)
 @app.get("/", response_class=HTMLResponse)
 async def clients_page(request: Request):
     try:
-        from bot.database.connection import async_session
+        from bot.database.connection import get_db
         from bot.database import crud
     except ImportError:
         return HTMLResponse("<h1>Database module not available</h1>")
 
-    async with async_session() as session:
+    async with get_db() as session:
         users = await crud.get_all_users(session)
 
     return templates.TemplateResponse("clients.html", {"request": request, "users": users})

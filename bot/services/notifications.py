@@ -1,5 +1,5 @@
 from aiogram import Bot
-from bot.database.connection import async_session
+from bot.database.connection import get_db
 from bot.database import crud
 from bot.config import get_current_time
 import logging
@@ -34,7 +34,7 @@ def get_reminder_interval(household_size: int) -> int:
 async def send_water_reminders(bot: Bot):
     logger.info("Checking water reminders for all users...")
 
-    async with async_session() as session:
+    async with get_db() as session:
         users = await crud.get_all_users(session)
         now = get_current_time()
 
