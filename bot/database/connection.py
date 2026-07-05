@@ -1,0 +1,81 @@
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy import text
+from bot.config import DATABASE_URL
+import logging
+
+logger = logging.getLogger(__name__)
+
+engine = create_async_engine(DATABASE_URL, echo=False)
+async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+
+async def get_session() -> AsyncSession:
+    async with async_session() as session:
+        yield session
+
+
+async def column_exists(conn, table: str, column: str) -> bool:
+    try:
+        result = await conn.execute(text(
+            "SELECT column_name FROM information_schema.columns "
+            "WHERE table_name = :table AND column_name = :column"
+        ), {"table": table, "column": column})
+        return result.scalar() is not None
+    except Exception:
+        return False
+
+
+async def table_exists(conn, table: str) -> bool:
+    try:
+        result = await conn.execute(text(
+            "SELECT table_name FROM information_schema.tables "
+            "WHERE table_name = :table"
+        ), {"table": table})
+        return result.scalar() is not None
+    except Exception:
+        return False
+
+
+async def migrate_schema():
+    async with engine.begin() as conn:
+        if not await column_exists(conn, "users", "household_size"):
+            await conn.execute(text("ALTER TABLE users ADD COLUMN household_size INTEGER NOT NULL DEFAULT 1"))
+            logger.info("Added column: users.household_size")
+        else:
+            logger.info("Column users.household_size already exists")
+        
+        if not await column_exists(conn, "users", "language"):
+            await conn.execute(text("ALTER TABLE users ADD COLUMN language VARCHAR(2) NOT NULL DEFAULT 'uz'"))
+            logger.info("Added column: users.language")
+        else:
+            logger.info("Column users.language already exists")
+
+        for col in ["telegram_username", "approved_at", "approved_by", "status"]:
+            if await column_exists(conn, "users", col):
+                await conn.execute(text(f"ALTER TABLE users DROP COLUMN {col}"))
+                logger.info(f"Dropped column: users.{col}")
+
+        for col in ["location_lat", "location_lng"]:
+            if not await column_exists(conn, "orders", col):
+                await conn.execute(text(f"ALTER TABLE orders ADD COLUMN {col} DOUBLE PRECISION"))
+                logger.info(f"Added column: orders.{col}")
+            else:
+                logger.info(f"Column orders.{col} already exists")
+
+        for col in ["product_type", "delivery_date", "delivered_at", "delivered_by"]:
+            if await column_exists(conn, "orders", col):
+                await conn.execute(text(f"ALTER TABLE orders DROP COLUMN {col}"))
+                logger.info(f"Dropped column: orders.{col}")
+
+        for tbl in ["operators", "delivery_staff", "blacklist"]:
+            if await table_exists(conn, tbl):
+                await conn.execute(text(f"DROP TABLE IF EXISTS {tbl} CASCADE"))
+                logger.info(f"Dropped table: {tbl}")
+
+
+async def init_db():
+    from bot.database.models import Base
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    await migrate_schema()
+    logger.info("Database migration completed")

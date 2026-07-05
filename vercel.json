@@ -1,0 +1,12 @@
+{
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/_app" }
+  ],
+  "functions": {
+    "api/_app.py": {
+      "maxDuration": 30
+    }
+  }
+}

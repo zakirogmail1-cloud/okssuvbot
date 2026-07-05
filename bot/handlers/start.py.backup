@@ -1,0 +1,309 @@
+from aiogram import Router, F
+from aiogram.types import Message, CallbackQuery
+from aiogram.filters import CommandStart, Command
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext
+from bot.database.connection import async_session
+from bot.database import crud
+from bot.keyboards.reply import (
+    get_contact_keyboard, get_main_keyboard, get_info_edit_keyboard, get_language_keyboard
+)
+from bot.keyboards.inline import get_language_inline_keyboard
+from bot.localization import get_text
+from aiogram.types import ReplyKeyboardRemove
+
+router = Router()
+
+
+class Registration(StatesGroup):
+    choosing_language = State()
+    waiting_for_name = State()
+    waiting_for_phone = State()
+    waiting_for_household_size = State()
+
+
+class EditInfo(StatesGroup):
+    waiting_for_new_name = State()
+    waiting_for_new_phone = State()
+
+
+@router.message(CommandStart())
+async def cmd_start(message: Message, state: FSMContext):
+    await state.clear()
+    async with async_session() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+
+    if user:
+        lang = user.language
+        await message.answer(
+            get_text("welcome_registered", lang, name=user.full_name),
+            reply_markup=get_main_keyboard(lang)
+        )
+    else:
+        # Yangi foydalanuvchi - tilni tanlash
+        await message.answer(
+            get_text("choose_language", "uz"),
+            reply_markup=get_language_inline_keyboard()
+        )
+        await state.set_state(Registration.choosing_language)
+
+
+@router.callback_query(Registration.choosing_language, F.data.startswith("lang_"))
+async def process_language_choice(callback: CallbackQuery, state: FSMContext):
+    lang = callback.data.split("_")[1]  # uz, ru, en
+    await state.update_data(language=lang)
+    
+    try:
+        await callback.message.edit_reply_markup(reply_markup=None)
+    except:
+        pass
+    
+    await callback.message.answer(
+        get_text("welcome_new", lang)
+    )
+    await state.set_state(Registration.waiting_for_name)
+    await callback.answer()
+
+
+@router.message(Registration.waiting_for_name)
+async def process_name(message: Message, state: FSMContext):
+    name = message.text.strip()
+    data = await state.get_data()
+    lang = data.get("language", "uz")
+    
+    if len(name) < 3:
+        await message.answer(get_text("invalid_name", lang))
+        return
+
+    await state.update_data(full_name=name)
+    await message.answer(
+        get_text("enter_name", lang, name=name.split()[0]),
+        reply_markup=get_contact_keyboard(lang)
+    )
+    await state.set_state(Registration.waiting_for_phone)
+
+
+@router.message(Registration.waiting_for_phone, F.contact)
+async def process_phone_contact(message: Message, state: FSMContext):
+    phone = message.contact.phone_number
+    if not phone.startswith("+"):
+        phone = "+" + phone
+    await state.update_data(phone=phone)
+    await ask_household_size(message, state)
+
+
+@router.message(Registration.waiting_for_phone, F.text)
+async def process_phone_text(message: Message, state: FSMContext):
+    phone = message.text.strip()
+    if not phone.startswith("+"):
+        phone = "+" + phone
+    if len(phone) < 10 or not phone[1:].isdigit():
+        await message.answer(
+            "❌ Noto'g'ri format.\n"
+            "Iltimos, <b>+998XXXXXXXXX</b> shaklida yozing yoki "
+            "📱 Raqamni yuborish tugmasini bosing."
+        )
+        return
+    await state.update_data(phone=phone)
+    await ask_household_size(message, state)
+
+
+async def ask_household_size(message: Message, state: FSMContext):
+    await message.answer(
+        "🏠 <b>Xonadoningizda necha kishi yashaydi?</b>\n\n"
+        "Raqam yozing, masalan: <i>4</i>\n\n"
+        "💡 Bu ma'lumot sizga eng mos xizmatni taklif qilish uchun kerak.",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    await state.set_state(Registration.waiting_for_household_size)
+
+
+@router.message(Registration.waiting_for_household_size, F.text.func(lambda t: t.strip().isdigit() and int(t.strip()) > 0))
+async def process_household_size(message: Message, state: FSMContext):
+    household_size = int(message.text.strip())
+    data = await state.get_data()
+
+    async with async_session() as session:
+        user = await crud.create_user(
+            session,
+            telegram_id=message.from_user.id,
+            full_name=data["full_name"],
+            phone=data["phone"],
+            household_size=household_size
+        )
+
+    await message.answer(
+        "🎉 <b>Tabriklaymiz! Ro'yxatdan o'tdingiz!</b>\n\n"
+        f"👤 <b>Ism:</b> {user.full_name}\n"
+        f"📞 <b>Telefon:</b> {user.phone}\n"
+        f"🏠 <b>Xonadon:</b> {user.household_size} kishi\n\n"
+        f"💧 Endi <b>Buyurtma berish</b> tugmasi orqali suv buyurtma qilishingiz mumkin!\n\n"
+        f"<i>OKS Suv — toza suv, sog' hayot!</i>",
+        reply_markup=get_main_keyboard()
+    )
+    await state.clear()
+
+
+@router.message(Registration.waiting_for_household_size)
+async def process_household_size_invalid(message: Message):
+    await message.answer(
+        "❌ Iltimos, faqat musbat raqam kiriting.\n"
+        "Masalan: <i>4</i>"
+    )
+
+
+@router.message(F.text == "👤 Mening ma'lumotlarim")
+async def my_info(message: Message):
+    async with async_session() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+
+    if not user:
+        await message.answer("💡 Iltimos, avval ro'yxatdan o'ting: /start")
+        return
+
+    await message.answer(
+        f"👤 <b>SIZNING MA'LUMOTLARINGIZ</b>\n\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🧑 <b>Ism:</b> {user.full_name}\n"
+        f"📞 <b>Telefon:</b> {user.phone}\n"
+        f"🏠 <b>Xonadon:</b> {user.household_size} kishi\n"
+        f"━━━━━━━━━━━━━━━━━━\n\n"
+        f"✏️ Ma'lumotlarni o'zgartirish uchun quyidagi tugmalardan foydalaning:",
+        reply_markup=get_info_edit_keyboard()
+    )
+
+
+@router.message(F.text == "✏️ Ismni o'zgartirish")
+async def edit_name_start(message: Message, state: FSMContext):
+    async with async_session() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+
+    if not user:
+        await message.answer("💡 Iltimos, avval ro'yxatdan o'ting: /start")
+        return
+
+    await message.answer(
+        "✏️ <b>Yangi ismingizni kiriting:</b>\n\n"
+        "Masalan: <i>Akbar Tursunov</i>",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    await state.set_state(EditInfo.waiting_for_new_name)
+
+
+@router.message(EditInfo.waiting_for_new_name)
+async def edit_name_process(message: Message, state: FSMContext):
+    if len(message.text.strip()) < 3:
+        await message.answer("❌ Iltimos, to'liq ismingizni kiriting (kamida 3 harf).")
+        return
+
+    async with async_session() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+        if user:
+            await crud.update_user_name(session, user.id, message.text.strip())
+
+    await message.answer(
+        f"✅ <b>Ism o'zgartirildi!</b>\n\n"
+        f"Yangi ism: {message.text.strip()}",
+        reply_markup=get_main_keyboard()
+    )
+    await state.clear()
+
+
+@router.message(F.text == "✏️ Telefon raqamni o'zgartirish")
+async def edit_phone_start(message: Message, state: FSMContext):
+    async with async_session() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+
+    if not user:
+        await message.answer("💡 Iltimos, avval ro'yxatdan o'ting: /start")
+        return
+
+    await message.answer(
+        "✏️ <b>Yangi telefon raqamingizni kiriting:</b>\n\n"
+        "Format: <b>+998XXXXXXXXX</b>\n"
+        "Masalan: <i>+998901234567</i>",
+        reply_markup=ReplyKeyboardRemove()
+    )
+    await state.set_state(EditInfo.waiting_for_new_phone)
+
+
+@router.message(EditInfo.waiting_for_new_phone)
+async def edit_phone_process(message: Message, state: FSMContext):
+    phone = message.text.strip()
+    if not phone.startswith("+"):
+        phone = "+" + phone
+    if len(phone) < 10 or not phone[1:].isdigit():
+        await message.answer(
+            "❌ Noto'g'ri format. Iltimos, <b>+998XXXXXXXXX</b> shaklida yozing."
+        )
+        return
+
+    async with async_session() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+        if user:
+            await crud.update_user_phone(session, user.id, phone)
+
+    await message.answer(
+        f"✅ <b>Telefon raqam o'zgartirildi!</b>\n\n"
+        f"Yangi raqam: {phone}",
+        reply_markup=get_main_keyboard()
+    )
+    await state.clear()
+
+
+@router.message(F.text == "📞 Qo'llab-quvvatlash")
+async def support(message: Message):
+    from bot.config import ADMIN_TELEGRAM_IDS
+    async with async_session() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+
+    if not user:
+        await message.answer("💡 Iltimos, avval ro'yxatdan o'ting: /start")
+        return
+
+    username = message.from_user.username or "Noma'lum"
+    admin_text = (
+        f"📞 <b>MIJOZDAN YORDAM SO'ROVI</b>\n\n"
+        f"👤 <b>Ism:</b> {user.full_name}\n"
+        f"📞 <b>Telefon:</b> {user.phone}\n"
+        f"🆔 <b>Username:</b> @{username}"
+    )
+
+    for admin_id in ADMIN_TELEGRAM_IDS:
+        try:
+            await message.bot.send_message(chat_id=admin_id, text=admin_text)
+            await message.bot.forward_message(
+                chat_id=admin_id,
+                from_chat_id=message.chat.id,
+                message_id=message.message_id
+            )
+        except Exception:
+            pass
+
+    await message.answer(
+        "📞 <b>Qo'llab-quvvatlash</b>\n\n"
+        "Murojaatingiz <b>admin</b> ga yuborildi.\n"
+        "Tez orada siz bilan bog'lanamiz. ✅\n\n"
+        "Kutib qolganingiz uchun rahmat! 😊",
+        reply_markup=get_main_keyboard()
+    )
+
+
+@router.message(F.text == "◀️ Orqaga")
+async def go_back(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(
+        "🏠 <b>Bosh menyu</b>\n\n"
+        "Quyidagi tugmalardan birini tanlang:",
+        reply_markup=get_main_keyboard()
+    )
+
+
+@router.message(Command("cancel"))
+async def cmd_cancel(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(
+        "🚫 Jarayon bekor qilindi.\n\n"
+        "🏠 Bosh menyuga qaytdingiz.",
+        reply_markup=get_main_keyboard()
+    )
