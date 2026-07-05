@@ -3,7 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from bot.config import BOT_TOKEN, ADMIN_TELEGRAM_IDS, DATABASE_URL
+from bot.config import BOT_TOKEN, ADMIN_TELEGRAM_IDS
 from bot.database.connection import init_db, async_session
 from bot.database import crud
 from bot.handlers import start, orders, admin

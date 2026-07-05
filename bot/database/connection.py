@@ -5,11 +5,25 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-engine = create_async_engine(DATABASE_URL, echo=False)
-async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+engine = None
+async_session = None
+
+
+async def init_engine():
+    global engine, async_session
+    if not DATABASE_URL:
+        raise ValueError(
+            "DATABASE_URL is not set. "
+            "Check your .env file or Railway environment variables."
+        )
+    engine = create_async_engine(DATABASE_URL, echo=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    logger.info("Database engine initialized")
 
 
 async def get_session() -> AsyncSession:
+    if not async_session:
+        await init_engine()
     async with async_session() as session:
         yield session
 
@@ -37,6 +51,8 @@ async def table_exists(conn, table: str) -> bool:
 
 
 async def migrate_schema():
+    if not engine:
+        await init_engine()
     async with engine.begin() as conn:
         if not await column_exists(conn, "users", "household_size"):
             await conn.execute(text("ALTER TABLE users ADD COLUMN household_size INTEGER NOT NULL DEFAULT 1"))
@@ -74,6 +90,8 @@ async def migrate_schema():
 
 
 async def init_db():
+    if not engine:
+        await init_engine()
     from bot.database.models import Base
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

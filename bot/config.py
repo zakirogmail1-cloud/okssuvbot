@@ -1,11 +1,19 @@
 import os
+import logging
 from dotenv import load_dotenv
 from datetime import timezone, timedelta
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not BOT_TOKEN:
+    logger.warning("BOT_TOKEN is not set in environment variables")
+if not DATABASE_URL:
+    logger.warning("DATABASE_URL is not set in environment variables")
 
 _daily_channel = os.getenv("DAILY_CHANNEL_ID", "")
 if not _daily_channel or _daily_channel == "0":
