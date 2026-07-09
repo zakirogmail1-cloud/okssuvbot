@@ -88,7 +88,18 @@ def get_info_edit_keyboard(lang: str = "uz"):
         keyboard=[
             [KeyboardButton(text=get_text("btn_edit_name", lang))],
             [KeyboardButton(text=get_text("btn_edit_phone", lang))],
+            [KeyboardButton(text=get_text("btn_edit_household", lang))],
+            [KeyboardButton(text=get_text("btn_edit_address", lang))],
             [KeyboardButton(text=get_text("btn_back", lang))],
         ],
+        resize_keyboard=True
+    )
+
+
+def get_edit_location_keyboard(lang: str = "uz"):
+    from bot.localization import get_text
+    button = KeyboardButton(text=get_text("btn_send_location", lang), request_location=True)
+    return ReplyKeyboardMarkup(
+        keyboard=[[button], [KeyboardButton(text=get_text("btn_back", lang))]],
         resize_keyboard=True
     )

@@ -6,7 +6,8 @@ from aiogram.fsm.context import FSMContext
 from bot.database.connection import get_db
 from bot.database import crud
 from bot.keyboards.reply import (
-    get_contact_keyboard, get_main_keyboard, get_info_edit_keyboard, get_language_keyboard
+    get_contact_keyboard, get_main_keyboard, get_info_edit_keyboard,
+    get_language_keyboard, get_edit_location_keyboard
 )
 from bot.keyboards.inline import get_language_inline_keyboard
 from bot.localization import get_text
@@ -25,6 +26,8 @@ class Registration(StatesGroup):
 class EditInfo(StatesGroup):
     waiting_for_new_name = State()
     waiting_for_new_phone = State()
+    waiting_for_new_address = State()
+    waiting_for_new_household = State()
 
 
 @router.message(CommandStart())
@@ -210,9 +213,12 @@ async def my_info(message: Message):
         return
 
     lang = user.language
+    addr = user.saved_address if user.saved_address else get_text("no_saved_address", lang)
+    addr_line = get_text("my_info_address_line", lang, address=addr)
     await message.answer(
-        get_text("my_info_title", lang) + "\n\n" + 
-        get_text("my_info_text", lang, name=user.full_name, phone=user.phone, household=user.household_size),
+        get_text("my_info_title", lang) + "\n\n" +
+        get_text("my_info_text", lang, name=user.full_name, phone=user.phone, household=user.household_size) +
+        "\n" + addr_line,
         reply_markup=get_info_edit_keyboard(lang)
     )
 
@@ -299,6 +305,112 @@ async def edit_phone_process(message: Message, state: FSMContext):
 
     await message.answer(
         get_text("phone_changed", lang, phone=phone),
+        reply_markup=get_main_keyboard(lang)
+    )
+    await state.clear()
+
+
+@router.message(F.text.in_(["🏠 Xonadon sonini o'zgartirish", "🏠 Изменить кол-во человек", "🏠 Edit Household Size"]))
+async def edit_household_start(message: Message, state: FSMContext):
+    async with get_db() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+
+    if not user:
+        await message.answer(get_text("please_register", "uz"))
+        return
+
+    lang = user.language
+    await message.answer(
+        get_text("edit_household_prompt", lang),
+        reply_markup=ReplyKeyboardRemove()
+    )
+    await state.set_state(EditInfo.waiting_for_new_household)
+
+
+@router.message(EditInfo.waiting_for_new_household)
+async def edit_household_process(message: Message, state: FSMContext):
+    async with get_db() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+        lang = user.language if user else "uz"
+
+    text = message.text.strip() if message.text else ""
+    if not (text.isdigit() and 1 <= int(text) <= 30):
+        await message.answer(get_text("invalid_household", lang))
+        return
+
+    household_size = int(text)
+    async with get_db() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+        if user:
+            await crud.update_user_household(session, user.id, household_size)
+
+    await message.answer(
+        get_text("household_changed", lang, household=household_size),
+        reply_markup=get_main_keyboard(lang)
+    )
+    await state.clear()
+
+
+@router.message(F.text.in_(["📍 Manzilni o'zgartirish", "📍 Изменить адрес", "📍 Edit Address"]))
+async def edit_address_start(message: Message, state: FSMContext):
+    async with get_db() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+
+    if not user:
+        await message.answer(get_text("please_register", "uz"))
+        return
+
+    lang = user.language
+    await message.answer(
+        get_text("edit_address_prompt", lang),
+        reply_markup=get_edit_location_keyboard(lang)
+    )
+    await state.set_state(EditInfo.waiting_for_new_address)
+
+
+@router.message(EditInfo.waiting_for_new_address, F.location)
+async def edit_address_location(message: Message, state: FSMContext):
+    async with get_db() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+        lang = user.language if user else "uz"
+        addr = f"{message.location.latitude:.6f}, {message.location.longitude:.6f}"
+        if user:
+            await crud.update_user_location(
+                session, user.id, address=addr,
+                lat=message.location.latitude, lng=message.location.longitude
+            )
+
+    await message.answer(
+        get_text("address_changed", lang, address=addr),
+        reply_markup=get_main_keyboard(lang)
+    )
+    await state.clear()
+
+
+@router.message(EditInfo.waiting_for_new_address, F.text)
+async def edit_address_text(message: Message, state: FSMContext):
+    async with get_db() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+        lang = user.language if user else "uz"
+
+    # Orqaga tugmasi bosilsa
+    if message.text.strip() in ["◀️ Orqaga", "◀️ Назад", "◀️ Back"]:
+        await state.clear()
+        await message.answer(get_text("back_to_menu", lang), reply_markup=get_main_keyboard(lang))
+        return
+
+    addr = message.text.strip()
+    if len(addr) < 5:
+        await message.answer(get_text("invalid_address", lang))
+        return
+
+    async with get_db() as session:
+        user = await crud.get_user_by_telegram_id(session, message.from_user.id)
+        if user:
+            await crud.update_user_location(session, user.id, address=addr, lat=None, lng=None)
+
+    await message.answer(
+        get_text("address_changed", lang, address=addr),
         reply_markup=get_main_keyboard(lang)
     )
     await state.clear()

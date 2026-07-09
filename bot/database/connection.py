@@ -67,6 +67,11 @@ async def table_exists(conn, table: str) -> bool:
 async def migrate_schema():
     if not engine:
         await init_engine()
+    # Bu migratsiya Postgres'ga xos (information_schema, ALTER TABLE).
+    # SQLite (lokal test) uchun create_all allaqachon to'g'ri sxemani yaratadi — o'tkazib yuboramiz.
+    if engine.dialect.name != "postgresql":
+        logger.info(f"Skipping Postgres-specific migration for dialect: {engine.dialect.name}")
+        return
     async with engine.begin() as conn:
         if not await column_exists(conn, "users", "household_size"):
             await conn.execute(text("ALTER TABLE users ADD COLUMN household_size INTEGER NOT NULL DEFAULT 1"))
@@ -91,6 +96,25 @@ async def migrate_schema():
                 logger.info(f"Added column: orders.{col}")
             else:
                 logger.info(f"Column orders.{col} already exists")
+
+        # Saqlangan manzil ustunlari (users)
+        if not await column_exists(conn, "users", "saved_address"):
+            await conn.execute(text("ALTER TABLE users ADD COLUMN saved_address TEXT"))
+            logger.info("Added column: users.saved_address")
+        if not await column_exists(conn, "users", "saved_lat"):
+            await conn.execute(text("ALTER TABLE users ADD COLUMN saved_lat DOUBLE PRECISION"))
+            logger.info("Added column: users.saved_lat")
+        if not await column_exists(conn, "users", "saved_lng"):
+            await conn.execute(text("ALTER TABLE users ADD COLUMN saved_lng DOUBLE PRECISION"))
+            logger.info("Added column: users.saved_lng")
+
+        # Bir nechta mahsulot uchun ustunlar (orders)
+        if not await column_exists(conn, "orders", "items"):
+            await conn.execute(text("ALTER TABLE orders ADD COLUMN items TEXT"))
+            logger.info("Added column: orders.items")
+        if not await column_exists(conn, "orders", "total_price"):
+            await conn.execute(text("ALTER TABLE orders ADD COLUMN total_price INTEGER"))
+            logger.info("Added column: orders.total_price")
 
         for col in ["product_type", "delivery_date", "delivered_at", "delivered_by"]:
             if await column_exists(conn, "orders", col):

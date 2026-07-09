@@ -23,6 +23,26 @@ else:
 
 ADMIN_TELEGRAM_IDS = [int(x) for x in os.getenv("ADMIN_TELEGRAM_IDS", "").split(",") if x]
 
+# Dostavkachilar (yetkazib beruvchilar).
+# Format: DELIVERY_STAFF=123456789:Ali,987654321:Vali
+# (ism ixtiyoriy; ":ism" bo'lmasa avtomatik nom beriladi)
+DELIVERY_STAFF = []
+for _part in os.getenv("DELIVERY_STAFF", "").split(","):
+    _part = _part.strip()
+    if not _part:
+        continue
+    if ":" in _part:
+        _id, _name = _part.split(":", 1)
+        try:
+            DELIVERY_STAFF.append((int(_id.strip()), _name.strip() or f"Dostavkachi {_id.strip()}"))
+        except ValueError:
+            pass
+    else:
+        try:
+            DELIVERY_STAFF.append((int(_part), f"Dostavkachi {_part}"))
+        except ValueError:
+            pass
+
 UZBEKISTAN_TZ = timezone(timedelta(hours=5))
 
 

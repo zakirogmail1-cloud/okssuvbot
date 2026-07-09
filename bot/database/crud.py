@@ -38,6 +38,24 @@ async def update_user_phone(session: AsyncSession, user_id: int, new_phone: str)
     await session.commit()
 
 
+async def update_user_household(session: AsyncSession, user_id: int, household_size: int):
+    await session.execute(
+        update(User).where(User.id == user_id).values(household_size=household_size)
+    )
+    await session.commit()
+
+
+async def update_user_location(session: AsyncSession, user_id: int, address: str,
+                               lat: float = None, lng: float = None):
+    """Foydalanuvchining saqlangan manzil/lokatsiyasini yangilaydi."""
+    await session.execute(
+        update(User).where(User.id == user_id).values(
+            saved_address=address, saved_lat=lat, saved_lng=lng
+        )
+    )
+    await session.commit()
+
+
 async def update_user_reminder_at(session: AsyncSession, user_id: int):
     await session.execute(
         update(User).where(User.id == user_id).values(last_reminder_at=get_uzbekistan_time())
@@ -51,11 +69,14 @@ async def get_last_order_number(session: AsyncSession):
 
 
 async def create_order(session: AsyncSession, user_id: int, order_number: int,
-                       quantity: int, address: str, location_lat: float = None, location_lng: float = None):
+                       quantity: int, address: str, location_lat: float = None,
+                       location_lng: float = None, items: str = None, total_price: int = None):
     order = Order(
         user_id=user_id,
         order_number=order_number,
         quantity=quantity,
+        items=items,
+        total_price=total_price,
         address=address,
         location_lat=location_lat,
         location_lng=location_lng,

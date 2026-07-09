@@ -158,9 +158,9 @@ TRANSLATIONS = {
         "en": "✅ <b>Phone number changed!</b>\n\nNew number: {phone}"
     },
     "support_sent": {
-        "uz": "📞 <b>Qo'llab-quvvatlash</b>\n\nMurojaatingiz <b>admin</b> ga yuborildi.\nTez orada siz bilan bog'lanamiz. ✅\n\nKutib qolganingiz uchun rahmat! 😊",
-        "ru": "📞 <b>Поддержка</b>\n\nВаше обращение отправлено <b>администратору</b>.\nМы свяжемся с вами в ближайшее время. ✅\n\nСпасибо за ожидание! 😊",
-        "en": "📞 <b>Support</b>\n\nYour request has been sent to <b>admin</b>.\nWe will contact you soon. ✅\n\nThank you for waiting! 😊"
+        "uz": "📞 <b>Qo'llab-quvvatlash</b>\n\nMurojaatingiz <b>admin</b> ga yuborildi.\nTez orada siz bilan bog'lanamiz. ✅\n\n☎️ Bog'lanish uchun: <b>+998 99 058 22 22</b>\n\nKutib qolganingiz uchun rahmat! 😊",
+        "ru": "📞 <b>Поддержка</b>\n\nВаше обращение отправлено <b>администратору</b>.\nМы свяжемся с вами в ближайшее время. ✅\n\n☎️ Для связи: <b>+998 99 058 22 22</b>\n\nСпасибо за ожидание! 😊",
+        "en": "📞 <b>Support</b>\n\nYour request has been sent to <b>admin</b>.\nWe will contact you soon. ✅\n\n☎️ Contact us: <b>+998 99 058 22 22</b>\n\nThank you for waiting! 😊"
     },
     "back_to_menu": {
         "uz": "🏠 <b>Bosh menyu</b>\n\nQuyidagi tugmalardan birini tanlang:",
@@ -305,134 +305,135 @@ TRANSLATIONS = {
     },
     "about_us_info": {
         "uz": """
-<b>OKS Suv</b> — Termiz shahrida faoliyat yurituvchi yetakchi ichimlik suvi yetkazib berish xizmati.
+💧 <b>OKS SUVLARI</b> — bu har bir xonadon va tashkilot uchun sifatli, toza hamda ishonchli ichimlik suvi yetkazib beruvchi brend.
 
-━━━━━━━━━━━━━━━━━━
+Biz mijozlarimizga yuqori sifat standartlariga javob beradigan ichimlik suvini zamonaviy texnologiyalar asosida yetkazib berishni o'z oldimizga maqsad qilganmiz.
 
-<b>📍 Manzil:</b>
-Termiz shahri, O'zbekiston
+✅ Toza va sifatli ichimlik suvi
+🚚 Tezkor va ishonchli yetkazib berish
+🏢 Uylar, ofislar, korxonalar va tashkilotlar uchun xizmat
+🤝 Har bir mijozga mas'uliyat va e'tibor bilan yondashuv
 
-<b>📞 Telefon:</b>
-+998 77 046 22 22
+Bizning asosiy maqsadimiz — har bir xonadonga toza suv va sifatli xizmatni yetkazish.
 
-<b>🕒 Ish vaqti:</b>
-Har kuni: 08:00 - 22:00
+🌐 <b>Rasmiy saytimiz:</b> https://www.okssuvlari.uz/
+Saytimiz orqali mahsulotlarimiz, narxlarimiz va xizmatlarimiz haqida batafsil ma'lumot olishingiz mumkin.
 
-━━━━━━━━━━━━━━━━━━
-
-<b>⭐ Bizning Afzalliklarimiz:</b>
-
-✅ <b>Toza va sifatli suv</b>
-   100% sertifikatlangan mahsulot
-
-✅ <b>Tez yetkazib berish</b>
-   Kun davomida yetkazamiz
-
-✅ <b>Arzon narxlar</b>
-   19 litr — atiga 15 000 so'm
-
-✅ <b>Ishonchli xizmat</b>
-   Yillar davomida mijozlarimiz ishonchini qozonganmiz
-
-━━━━━━━━━━━━━━━━━━
-
-<b>🔥 JORIY AKSIYALAR:</b>
-
-💎 <b>1 YILLIK SHARTNOMA:</b>
-   Shartnoma tuzing, haftada 4 ta buyurtma qiling — "KULER" bepul!
-
-━━━━━━━━━━━━━━━━━━
-
-<i>OKS Suv — toza suv, sog' hayot!</i> 💧
-
-Bizni tanlaganingiz uchun rahmat! 🙏
+💙 <b>OKS SUVLARI — Tozalik, sifat va ishonch bir manzilda!</b>
 """,
         "ru": """
-<b>OKS Suv</b> — ведущий сервис доставки питьевой воды в городе Термез.
+💧 <b>OKS SUVLARI</b> — это бренд по доставке качественной, чистой и надёжной питьевой воды для каждого дома и организации.
 
-━━━━━━━━━━━━━━━━━━
+Мы поставили перед собой цель доставлять питьевую воду, отвечающую высоким стандартам качества, на основе современных технологий.
 
-<b>📍 Адрес:</b>
-г. Термез, Узбекистан
+✅ Чистая и качественная питьевая вода
+🚚 Быстрая и надёжная доставка
+🏢 Обслуживание домов, офисов, предприятий и организаций
+🤝 Ответственный и внимательный подход к каждому клиенту
 
-<b>📞 Телефон:</b>
-+998 77 046 22 22
+Наша главная цель — доставить чистую воду и качественный сервис в каждый дом.
 
-<b>🕒 Время работы:</b>
-Ежедневно: 08:00 - 22:00
+🌐 <b>Наш официальный сайт:</b> https://www.okssuvlari.uz/
+На сайте вы можете получить подробную информацию о нашей продукции, ценах и услугах.
 
-━━━━━━━━━━━━━━━━━━
-
-<b>⭐ Наши Преимущества:</b>
-
-✅ <b>Чистая и качественная вода</b>
-   100% сертифицированная продукция
-
-✅ <b>Быстрая доставка</b>
-   Доставляем в течение дня
-
-✅ <b>Доступные цены</b>
-   19 литров — всего 15 000 сум
-
-✅ <b>Надежный сервис</b>
-   Годами зарабатываем доверие наших клиентов
-
-━━━━━━━━━━━━━━━━━━
-
-<b>🔥 ТЕКУЩИЕ АКЦИИ:</b>
-
-💎 <b>ГОДОВОЙ ДОГОВОР:</b>
-   Заключите договор, делайте 4 заказа в неделю — "КУЛЕР" бесплатно!
-
-━━━━━━━━━━━━━━━━━━
-
-<i>OKS Suv — чистая вода, здоровая жизнь!</i> 💧
-
-Спасибо, что выбрали нас! 🙏
+💙 <b>OKS SUVLARI — Чистота, качество и доверие в одном месте!</b>
 """,
         "en": """
-<b>OKS Suv</b> — leading drinking water delivery service in Termez city.
+💧 <b>OKS SUVLARI</b> is a brand delivering quality, clean and reliable drinking water for every home and organization.
 
-━━━━━━━━━━━━━━━━━━
+Our goal is to deliver drinking water that meets high quality standards using modern technologies.
 
-<b>📍 Address:</b>
-Termez, Uzbekistan
+✅ Clean and quality drinking water
+🚚 Fast and reliable delivery
+🏢 Service for homes, offices, businesses and organizations
+🤝 A responsible and attentive approach to every customer
 
-<b>📞 Phone:</b>
-+998 77 046 22 22
+Our main goal is to bring clean water and quality service to every home.
 
-<b>🕒 Working hours:</b>
-Daily: 08:00 - 22:00
+🌐 <b>Our official website:</b> https://www.okssuvlari.uz/
+Through our website you can get detailed information about our products, prices and services.
 
-━━━━━━━━━━━━━━━━━━
-
-<b>⭐ Our Advantages:</b>
-
-✅ <b>Clean and quality water</b>
-   100% certified product
-
-✅ <b>Fast delivery</b>
-   Delivered within the day
-
-✅ <b>Affordable prices</b>
-   19 liters — only 15,000 sum
-
-✅ <b>Reliable service</b>
-   Years of earning our customers' trust
-
-━━━━━━━━━━━━━━━━━━
-
-<b>🔥 CURRENT PROMOTIONS:</b>
-
-💎 <b>ANNUAL CONTRACT:</b>
-   Sign a contract, order 4 times a week — get a "COOLER" for free!
-
-━━━━━━━━━━━━━━━━━━
-
-<i>OKS Suv — clean water, healthy life!</i> 💧
-
-Thank you for choosing us! 🙏
+💙 <b>OKS SUVLARI — Cleanliness, quality and trust in one place!</b>
 """
+    },
+
+    # ── Yangi buyurtma oqimi (bir nechta mahsulot) ──
+    "order_choose_products": {
+        "uz": "🛒 <b>Mahsulotlarni tanlang</b>\n\nHar bir mahsulot yonidagi ➕ / ➖ tugmalari orqali sonini belgilang.\nTayyor bo'lgach, <b>✅ Davom etish</b> tugmasini bosing.",
+        "ru": "🛒 <b>Выберите товары</b>\n\nУкажите количество кнопками ➕ / ➖ рядом с каждым товаром.\nКогда будете готовы, нажмите <b>✅ Продолжить</b>.",
+        "en": "🛒 <b>Choose products</b>\n\nSet the quantity with the ➕ / ➖ buttons next to each product.\nWhen ready, press <b>✅ Continue</b>."
+    },
+    "cart_summary": {
+        "uz": "🛒 Savat (jami): {total} so'm",
+        "ru": "🛒 Корзина (итого): {total} сум",
+        "en": "🛒 Cart (total): {total} sum"
+    },
+    "btn_continue": {
+        "uz": "✅ Davom etish",
+        "ru": "✅ Продолжить",
+        "en": "✅ Continue"
+    },
+    "cart_empty": {
+        "uz": "❌ Kamida bitta mahsulot tanlang (➕ tugmasini bosing).",
+        "ru": "❌ Выберите хотя бы один товар (нажмите ➕).",
+        "en": "❌ Select at least one product (press ➕)."
+    },
+    "order_confirm_multi": {
+        "uz": "📋 <b>BUYURTMANGIZNI TEKSHIRING</b>\n\n━━━━━━━━━━━━━━━━━━━━━━\n{items}\n━━━━━━━━━━━━━━━━━━━━━━\n🏁 <b>Jami:</b> {total} so'm\n📍 <b>Manzil:</b> {address}\n━━━━━━━━━━━━━━━━━━━━━━\n\n👇 Tasdiqlang yoki bekor qiling:",
+        "ru": "📋 <b>ПРОВЕРЬТЕ ВАШ ЗАКАЗ</b>\n\n━━━━━━━━━━━━━━━━━━━━━━\n{items}\n━━━━━━━━━━━━━━━━━━━━━━\n🏁 <b>Итого:</b> {total} сум\n📍 <b>Адрес:</b> {address}\n━━━━━━━━━━━━━━━━━━━━━━\n\n👇 Подтвердите или отмените:",
+        "en": "📋 <b>CHECK YOUR ORDER</b>\n\n━━━━━━━━━━━━━━━━━━━━━━\n{items}\n━━━━━━━━━━━━━━━━━━━━━━\n🏁 <b>Total:</b> {total} sum\n📍 <b>Address:</b> {address}\n━━━━━━━━━━━━━━━━━━━━━━\n\n👇 Confirm or cancel:"
+    },
+    "order_success_multi": {
+        "uz": "✅ <b>Buyurtma qabul qilindi!</b> 🎉\n\n📦 <b>Kun davomida yetkazib beriladi.</b>\n\n📋 <b>Buyurtma raqami:</b> #{number}\n{items}\n🏁 <b>Jami:</b> {total} so'm\n📍 <b>Manzil:</b> {address}\n\n🙏 Biz bilan bo'lganingiz uchun rahmat!\n<i>OKS Suv — toza suv, sog' hayot!</i> 💧",
+        "ru": "✅ <b>Заказ принят!</b> 🎉\n\n📦 <b>Доставка в течение дня.</b>\n\n📋 <b>Номер заказа:</b> #{number}\n{items}\n🏁 <b>Итого:</b> {total} сум\n📍 <b>Адрес:</b> {address}\n\n🙏 Спасибо, что выбрали нас!\n<i>OKS Suv — чистая вода, здоровая жизнь!</i> 💧",
+        "en": "✅ <b>Order accepted!</b> 🎉\n\n📦 <b>Delivery within the day.</b>\n\n📋 <b>Order number:</b> #{number}\n{items}\n🏁 <b>Total:</b> {total} sum\n📍 <b>Address:</b> {address}\n\n🙏 Thank you for choosing us!\n<i>OKS Suv — clean water, healthy life!</i> 💧"
+    },
+    "order_using_saved_address": {
+        "uz": "📍 <b>Yetkazib berish manzili:</b>\n{address}\n\n<i>(Manzilni «Mening ma'lumotlarim» bo'limidan o'zgartirishingiz mumkin.)</i>",
+        "ru": "📍 <b>Адрес доставки:</b>\n{address}\n\n<i>(Адрес можно изменить в разделе «Моя информация».)</i>",
+        "en": "📍 <b>Delivery address:</b>\n{address}\n\n<i>(You can change the address in «My Information».)</i>"
+    },
+
+    # ── Manzilni o'zgartirish ──
+    "btn_edit_address": {
+        "uz": "📍 Manzilni o'zgartirish",
+        "ru": "📍 Изменить адрес",
+        "en": "📍 Edit Address"
+    },
+    "btn_edit_household": {
+        "uz": "🏠 Xonadon sonini o'zgartirish",
+        "ru": "🏠 Изменить кол-во человек",
+        "en": "🏠 Edit Household Size"
+    },
+    "edit_household_prompt": {
+        "uz": "🏠 <b>Xonadoningizda necha kishi yashaydi?</b>\n\nRaqam yozing, masalan: <i>4</i>",
+        "ru": "🏠 <b>Сколько человек проживает в вашей семье?</b>\n\nНапишите число, например: <i>4</i>",
+        "en": "🏠 <b>How many people live in your household?</b>\n\nWrite a number, for example: <i>4</i>"
+    },
+    "household_changed": {
+        "uz": "✅ <b>Xonadon soni o'zgartirildi!</b>\n\n🏠 Yangi son: {household} kishi",
+        "ru": "✅ <b>Количество человек изменено!</b>\n\n🏠 Новое число: {household} чел.",
+        "en": "✅ <b>Household size changed!</b>\n\n🏠 New size: {household} people"
+    },
+    "edit_address_prompt": {
+        "uz": "📍 <b>Yangi manzilingizni yuboring:</b>\n\nPastdagi tugma orqali <b>lokatsiya</b> yuboring yoki manzilni matn shaklida yozing.\n\n📌 Masalan: <i>Ko'cha, uy raqami, kvartira</i>",
+        "ru": "📍 <b>Отправьте новый адрес:</b>\n\nОтправьте <b>локацию</b> через кнопку ниже или напишите адрес текстом.\n\n📌 Например: <i>Улица, номер дома, квартира</i>",
+        "en": "📍 <b>Send your new address:</b>\n\nSend a <b>location</b> via the button below or write the address as text.\n\n📌 Example: <i>Street, house number, apartment</i>"
+    },
+    "address_changed": {
+        "uz": "✅ <b>Manzil o'zgartirildi!</b>\n\n📍 Yangi manzil: {address}",
+        "ru": "✅ <b>Адрес изменен!</b>\n\n📍 Новый адрес: {address}",
+        "en": "✅ <b>Address changed!</b>\n\n📍 New address: {address}"
+    },
+    "no_saved_address": {
+        "uz": "kiritilmagan",
+        "ru": "не указан",
+        "en": "not set"
+    },
+    "my_info_address_line": {
+        "uz": "📍 <b>Manzil:</b> {address}\n",
+        "ru": "📍 <b>Адрес:</b> {address}\n",
+        "en": "📍 <b>Address:</b> {address}\n"
     }
 }
 

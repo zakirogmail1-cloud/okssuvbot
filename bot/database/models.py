@@ -26,6 +26,10 @@ class User(Base):
     phone = Column(String(20), nullable=False)
     household_size = Column(Integer, nullable=False, default=1)
     language = Column(String(2), nullable=False, default="uz")  # uz, ru, en
+    # Saqlangan manzil (birinchi buyurtmada so'raladi, keyingilarda qayta ishlatiladi)
+    saved_address = Column(Text, nullable=True)
+    saved_lat = Column(Float, nullable=True)
+    saved_lng = Column(Float, nullable=True)
     created_at = Column(DateTime, default=get_uzbekistan_time)
     last_reminder_at = Column(DateTime, nullable=True)
 
@@ -38,7 +42,9 @@ class Order(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     order_number = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    quantity = Column(Integer, nullable=False, default=1)
+    quantity = Column(Integer, nullable=False, default=1)  # jami dona soni (eski moslik uchun)
+    items = Column(Text, nullable=True)  # JSON: [{"id","name","qty","price"}]
+    total_price = Column(Integer, nullable=True)  # jami summa (so'm)
     address = Column(Text, nullable=False)
     location_lat = Column(Float, nullable=True)
     location_lng = Column(Float, nullable=True)
