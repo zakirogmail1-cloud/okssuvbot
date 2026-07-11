@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart, Command
@@ -12,6 +14,8 @@ from bot.keyboards.reply import (
 from bot.keyboards.inline import get_language_inline_keyboard
 from bot.localization import get_text
 from aiogram.types import ReplyKeyboardRemove
+
+logger = logging.getLogger(__name__)
 
 router = Router()
 
@@ -416,9 +420,12 @@ async def edit_address_text(message: Message, state: FSMContext):
     await state.clear()
 
 
-@router.message(F.text.in_(["📞 Qo'llab-quvvatlash", "📞 Поддержка", "📞 Support"]))
-async def support(message: Message):
-    from bot.config import ADMIN_TELEGRAM_IDS
+@router.message(F.text.in_([
+    "📞 Operator bilan bog'lanish",
+    "📞 Связаться с оператором",
+    "📞 Contact Operator",
+]))
+async def contact_operator(message: Message):
     async with get_db() as session:
         user = await crud.get_user_by_telegram_id(session, message.from_user.id)
 
@@ -426,29 +433,23 @@ async def support(message: Message):
         await message.answer(get_text("please_register", "uz"))
         return
 
-    lang = user.language
-    username = message.from_user.username or "Noma'lum"
-    admin_text = (
-        f"📞 <b>MIJOZDAN YORDAM SO'ROVI</b>\n\n"
-        f"👤 <b>Ism:</b> {user.full_name}\n"
-        f"📞 <b>Telefon:</b> {user.phone}\n"
-        f"🆔 <b>Username:</b> @{username}"
-    )
+    lang = user.language or "uz"
 
-    for admin_id in ADMIN_TELEGRAM_IDS:
+    last_error = None
+    for attempt in range(3):  # 1 initial + 2 retries
         try:
-            await message.bot.send_message(chat_id=admin_id, text=admin_text)
-            await message.bot.forward_message(
-                chat_id=admin_id,
-                from_chat_id=message.chat.id,
-                message_id=message.message_id
+            await message.answer(
+                get_text("operator_contact", lang),
+                reply_markup=get_main_keyboard(lang),
             )
-        except Exception:
-            pass
+            return
+        except Exception as e:
+            last_error = e
+            logger.warning("operator_contact send failed (attempt %d): %s", attempt + 1, e)
 
     await message.answer(
-        get_text("support_sent", lang),
-        reply_markup=get_main_keyboard(lang)
+        get_text("operator_contact_error", lang),
+        reply_markup=get_main_keyboard(lang),
     )
 
 

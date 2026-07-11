@@ -76,9 +76,9 @@ TRANSLATIONS = {
         "en": "👤 My Information"
     },
     "btn_support": {
-        "uz": "📞 Qo'llab-quvvatlash",
-        "ru": "📞 Поддержка",
-        "en": "📞 Support"
+        "uz": "📞 Operator bilan bog'lanish",
+        "ru": "📞 Связаться с оператором",
+        "en": "📞 Contact Operator"
     },
     "btn_change_language": {
         "uz": "🌐 Tilni o'zgartirish",
@@ -161,6 +161,16 @@ TRANSLATIONS = {
         "uz": "📞 <b>Qo'llab-quvvatlash</b>\n\nMurojaatingiz <b>admin</b> ga yuborildi.\nTez orada siz bilan bog'lanamiz. ✅\n\n☎️ Bog'lanish uchun: <b>+998 99 058 22 22</b>\n\nKutib qolganingiz uchun rahmat! 😊",
         "ru": "📞 <b>Поддержка</b>\n\nВаше обращение отправлено <b>администратору</b>.\nМы свяжемся с вами в ближайшее время. ✅\n\n☎️ Для связи: <b>+998 99 058 22 22</b>\n\nСпасибо за ожидание! 😊",
         "en": "📞 <b>Support</b>\n\nYour request has been sent to <b>admin</b>.\nWe will contact you soon. ✅\n\n☎️ Contact us: <b>+998 99 058 22 22</b>\n\nThank you for waiting! 😊"
+    },
+    "operator_contact": {
+        "uz": "📞 <b>Operator bilan bog'lanish</b>\n\nQuyidagi raqamga bosib qo'ng'iroq qiling:\n☎️ <b>+998 99 058 22 22</b>\n\nOperatorlarimiz siz bilan bog'lanishga tayyor. 😊",
+        "ru": "📞 <b>Связаться с оператором</b>\n\nНажмите на номер ниже, чтобы позвонить:\n☎️ <b>+998 99 058 22 22</b>\n\nНаши операторы готовы связаться с вами. 😊",
+        "en": "📞 <b>Contact Operator</b>\n\nTap the number below to call:\n☎️ <b>+998 99 058 22 22</b>\n\nOur operators are ready to assist you. 😊"
+    },
+    "operator_contact_error": {
+        "uz": "⚠️ <b>Xatolik yuz berdi</b>\n\nOperator bilan bog'lanish ma'lumotlarini yuborib bo'lmadi.\nIltimos, birozdan so'ng qayta urinib ko'ring. 🙏",
+        "ru": "⚠️ <b>Произошла ошибка</b>\n\nНе удалось отправить контактные данные оператора.\nПожалуйста, попробуйте ещё раз чуть позже. 🙏",
+        "en": "⚠️ <b>Something went wrong</b>\n\nWe couldn't deliver the operator contact details.\nPlease try again in a moment. 🙏"
     },
     "back_to_menu": {
         "uz": "🏠 <b>Bosh menyu</b>\n\nQuyidagi tugmalardan birini tanlang:",

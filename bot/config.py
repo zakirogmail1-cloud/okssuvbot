@@ -21,7 +21,20 @@ if not _daily_channel or _daily_channel == "0":
 else:
     DAILY_CHANNEL_ID = int(_daily_channel)
 
-ADMIN_TELEGRAM_IDS = [int(x) for x in os.getenv("ADMIN_TELEGRAM_IDS", "").split(",") if x]
+def _parse_admin_ids(raw: str) -> list[int]:
+    ids: list[int] = []
+    for entry in raw.split(","):
+        trimmed = entry.strip()
+        if not trimmed:
+            continue
+        try:
+            ids.append(int(trimmed))
+        except ValueError:
+            logger.warning("Ignoring invalid ADMIN_TELEGRAM_IDS entry: %r", entry)
+    return ids
+
+
+ADMIN_TELEGRAM_IDS = _parse_admin_ids(os.getenv("ADMIN_TELEGRAM_IDS", ""))
 
 # Dostavkachilar (yetkazib beruvchilar).
 # Format: DELIVERY_STAFF=123456789:Ali,987654321:Vali
